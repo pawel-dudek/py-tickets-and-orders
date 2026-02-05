@@ -7,6 +7,7 @@ from db.models import Ticket, Order
 User = get_user_model()
 
 
+@transaction.atomic
 def create_order(tickets: list[dict],
                  username: str,
                  date: str = None) -> Order:
@@ -17,24 +18,23 @@ def create_order(tickets: list[dict],
 
     created_at = date if date else None
 
-    with transaction.atomic():
-        if created_at:
-            order = Order.objects.create(user=user)
-            order.created_at = created_at
-            order.save(update_fields=["created_at"])
-        else:
-            order = Order.objects.create(user=user)
+    if created_at:
+        order = Order.objects.create(user=user)
+        order.created_at = created_at
+        order.save(update_fields=["created_at"])
+    else:
+        order = Order.objects.create(user=user)
 
-        for ticket_data in tickets:
-            Ticket.objects.create(
-                order=order,
-                row=ticket_data["row"],
-                seat=ticket_data["seat"],
-                movie_session_id=ticket_data["movie_session"])
+    for ticket_data in tickets:
+        Ticket.objects.create(
+            order=order,
+            row=ticket_data["row"],
+            seat=ticket_data["seat"],
+            movie_session_id=ticket_data["movie_session"])
     return order
 
 
-def get_orders(username: str = None) -> QuerySet:
+def get_orders(username: str = None) -> QuerySet[Order]:
     if username:
         try:
             user = User.objects.get(username=username)

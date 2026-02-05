@@ -1,4 +1,7 @@
-from db.models import User
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 def create_user(
@@ -19,7 +22,11 @@ def create_user(
 
 
 def get_user(user_id: int) -> User:
-    return User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise ValueError(f"User with id {user_id} does not exist.")
+    return user
 
 
 def update_user(user_id: int,
@@ -28,10 +35,8 @@ def update_user(user_id: int,
                 email: str = None,
                 first_name: str = None,
                 last_name: str = None) -> User:
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        raise ValueError(f"User with id {user_id} does not exist.")
+
+    user = get_user(user_id)
 
     if username is not None:
         user.username = username
