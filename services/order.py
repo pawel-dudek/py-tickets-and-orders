@@ -1,12 +1,15 @@
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.db import transaction
+from db.models import Ticket, Order
 
-from db.models import Ticket, Order, User
+
+User = get_user_model()
 
 
 def create_order(tickets: list[dict],
                  username: str,
-                 date: str = None) -> None:
+                 date: str = None) -> Order:
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -16,7 +19,9 @@ def create_order(tickets: list[dict],
 
     with transaction.atomic():
         if created_at:
-            order = Order.objects.create(user=user, created_at=created_at)
+            order = Order.objects.create(user=user)
+            order.created_at = created_at
+            order.save(update_fields=["created_at"])
         else:
             order = Order.objects.create(user=user)
 

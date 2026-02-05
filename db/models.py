@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-from django.utils import timezone
 from django.db import models
 
 
@@ -56,15 +55,15 @@ class MovieSession(models.Model):
 
 
 class User(AbstractUser):
-    first_name = models.CharField(max_length=150, blank=True)
-    last_name = models.CharField(max_length=150, blank=True)
+    # first_name = models.CharField(max_length=150, blank=True)
+    # last_name = models.CharField(max_length=150, blank=True)
 
     def __str__(self) -> str:
         return self.username
 
 
 class Order(models.Model):
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
