@@ -14,16 +14,14 @@ def create_order(tickets: list[dict],
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        raise ValueError(f"User with id {username} does not exist.")
+        raise ValueError(f"User with username {username} does not exist.")
 
     created_at = date if date else None
+    order = Order.objects.create(user=user)
 
     if created_at:
-        order = Order.objects.create(user=user)
         order.created_at = created_at
         order.save(update_fields=["created_at"])
-    else:
-        order = Order.objects.create(user=user)
 
     for ticket_data in tickets:
         Ticket.objects.create(
